@@ -2,6 +2,7 @@ from moto import Moto, ControlGroupDefinition
 from moto.simple_message import JointTrajPtFull, ValidFields, ReplyType, ResultType
 import numpy as np
 import csv
+import time
 
 class LatencyTester():
     def __init__(self, ip: str):
@@ -43,7 +44,8 @@ class LatencyTester():
             valid_fields=ValidFields.TIME | ValidFields.POSITION | ValidFields.VELOCITY,
             time=0,
             pos = self.m.state.joint_feedback(0).pos,
-            vel = self.m.state.joint_feedback(0).vel,
+            # vel = self.m.state.joint_feedback(0).vel,
+            vel = [0.0]*10,
             acc=self.m.state.joint_feedback(0).acc
         )
 
@@ -64,8 +66,6 @@ class LatencyTester():
                 )
             self.m.motion.send_joint_trajectory_point(self.p0)
             self.m.motion.send_joint_trajectory_point(home)
-        else:
-            print('Hello')
     
     #Disconnects the Moto object and quits python
     def quit(self):
@@ -90,12 +90,11 @@ class LatencyTester():
                 )
             self.m.motion.send_joint_trajectory_point(self.p0)
             self.m.motion.send_joint_trajectory_point(pos)
-        else:
-            print('Hello')
+            # time.sleep(time)
+            # self.m.motion.stop_trajectory_mode()
 
     #Logs the joint positions of the robot while moving from on position to another  
     def logger(self):
-        self.move_to_home()
         self.move_to_pos()
         with open('motion_log.csv', 'w') as new_file:
             print('logging')
@@ -103,8 +102,10 @@ class LatencyTester():
 
             cycle_counter = 0
 
-            while cycle_counter > 500:
+            while cycle_counter < 40:
                 csv_writer.writerow(self.m.state.joint_feedback(0).pos)
+                cycle_counter += 1
+                time.sleep(10/40)
     
 
             
