@@ -4,36 +4,19 @@ import numpy as np
 import csv
 import time
 
-class LatencyTester():
-    def __init__(self, ip: str):
-        self.m = Moto(
-            ip,
-            [
-                ControlGroupDefinition(
-                    groupid="R1",
-                    groupno=0,
-                    num_joints=6,
-                    joint_names=[
-                        "joint_1_s",
-                        "joint_2_l",
-                        "joint_3_u",
-                        "joint_4_r",
-                        "joint_5_b",
-                        "joint_6_t",
-                    ],
-                ),
-            ],
-        )
-        while self.m.state.joint_feedback(0) == None:
+class LatencyTester(Moto):
+    def __init__(self, ip, control_group_defs):
+        super().__init__(ip, control_group_defs)
+        while self.state.joint_feedback(0) == None:
             pass
         self.p0 = JointTrajPtFull(
             groupno=0,
             sequence=0,
             valid_fields=ValidFields.TIME | ValidFields.POSITION | ValidFields.VELOCITY,
             time=0,
-            pos = self.m.state.joint_feedback(0).pos,
-            vel = self.m.state.joint_feedback(0).vel,
-            acc=self.m.state.joint_feedback(0).acc
+            pos = self.state.joint_feedback(0).pos,
+            vel = self.state.joint_feedback(0).vel,
+            acc=self.state.joint_feedback(0).acc
         )
         
     #Updates the current position and sets sequence and time to 0
@@ -43,17 +26,17 @@ class LatencyTester():
             sequence=0,
             valid_fields=ValidFields.TIME | ValidFields.POSITION | ValidFields.VELOCITY,
             time=0,
-            pos = self.m.state.joint_feedback(0).pos,
+            pos = self.state.joint_feedback(0).pos,
             # vel = self.m.state.joint_feedback(0).vel,
             vel = [0.0]*10,
-            acc=self.m.state.joint_feedback(0).acc
+            acc=self.state.joint_feedback(0).acc
         )
 
     #Moves the robot to home position over 10 seconds
     def move_to_home(self) ->None:
-        if self.m.motion.check_motion_ready().body.result == ResultType.FAILURE:
+        if self.motion.check_motion_ready().body.result == ResultType.FAILURE:
             print('Robot not ready for motion')
-        elif self.m.motion.check_motion_ready().body.result == ResultType.SUCCESS:
+        elif self.motion.check_motion_ready().body.result == ResultType.SUCCESS:
             self.update_p0()
             home = JointTrajPtFull(
                 groupno=0,
@@ -64,20 +47,20 @@ class LatencyTester():
                 vel=[0.0]*10,
                 acc=[0.0]*10
                 )
-            self.m.motion.send_joint_trajectory_point(self.p0)
-            self.m.motion.send_joint_trajectory_point(home)
+            self.motion.send_joint_trajectory_point(self.p0)
+            self.motion.send_joint_trajectory_point(home)
     
     #Disconnects the Moto object and quits python
     def quit(self):
-        self.m.motion.disconnect()
+        self.motion.disconnect()
         quit()
 
 
     #slowly moves the robot to an example position
     def move_to_pos(self):
-        if self.m.motion.check_motion_ready().body.result == ResultType.FAILURE:
+        if self.motion.check_motion_ready().body.result == ResultType.FAILURE:
             print('Robot not ready for motion')
-        elif self.m.motion.check_motion_ready().body.result == ResultType.SUCCESS:
+        elif self.motion.check_motion_ready().body.result == ResultType.SUCCESS:
             self.update_p0()
             pos = JointTrajPtFull(
                 groupno=0,
@@ -88,10 +71,10 @@ class LatencyTester():
                 vel=[0.0]*10,
                 acc=[0.0]*10
                 )
-            self.m.motion.send_joint_trajectory_point(self.p0)
-            self.m.motion.send_joint_trajectory_point(pos)
+            self.motion.send_joint_trajectory_point(self.p0)
+            self.motion.send_joint_trajectory_point(pos)
 
-    #Logs the joint positions of the robot while moving from on position to another  
+    #Logs the joint positions of the robot while moving from one position to another  
     def logger(self):
         self.move_to_pos()
         with open('motion_log.csv', 'w') as new_file:
@@ -101,7 +84,7 @@ class LatencyTester():
             cycle_counter = 0
 
             while cycle_counter < 400:
-                csv_writer.writerow(self.m.state.joint_feedback(0).pos)
+                csv_writer.writerow(self.state.joint_feedback(0).pos)
                 cycle_counter += 1
                 time.sleep(1/400)
             print('Finished logging!')
