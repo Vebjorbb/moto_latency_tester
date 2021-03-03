@@ -83,33 +83,26 @@ class LatencyTester():
                 groupno=0,
                 sequence=1,
                 valid_fields=ValidFields.TIME | ValidFields.POSITION | ValidFields.VELOCITY,
-                time=10,
-                pos=np.deg2rad([10.0, 10.0, 10.0, 10.0, 10.0, 0, 0, 0, 0, 0]),
+                time=1,
+                pos=np.deg2rad([20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 0, 0, 0, 0]),
                 vel=[0.0]*10,
                 acc=[0.0]*10
                 )
             self.m.motion.send_joint_trajectory_point(self.p0)
             self.m.motion.send_joint_trajectory_point(pos)
-            # time.sleep(time)
-            # self.m.motion.stop_trajectory_mode()
 
     #Logs the joint positions of the robot while moving from on position to another  
     def logger(self):
         self.move_to_pos()
         with open('motion_log.csv', 'w') as new_file:
-            print('logging')
+            print('Logging...')
             csv_writer = csv.writer(new_file, delimiter='\t')
 
             cycle_counter = 0
 
-            while cycle_counter < 40:
+            while cycle_counter < 400:
                 csv_writer.writerow(self.m.state.joint_feedback(0).pos)
                 cycle_counter += 1
-                time.sleep(10/40)
+                time.sleep(1/400)
+            print('Finished logging!')
     
-
-            
-
-
-
-

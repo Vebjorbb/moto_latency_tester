@@ -13,3 +13,4 @@ pos = JointTrajPtFull(
                 vel=[0.0]*10,
                 acc=[0.0]*10
                 )
+                
