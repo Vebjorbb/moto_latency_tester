@@ -10,7 +10,7 @@ def make_traj_pt(pos: List[float],
                 vel = [0.0]*10,
                 acc = [0.0]*10
                 ) -> JointTrajPtFull:
-    for i in range(4):
+    for _ in range(4):
         pos.append(0.0)
     point = JointTrajPtFull(groupno, sequence, valid_fields, time, np.deg2rad(pos), vel, acc)
     return(point)
