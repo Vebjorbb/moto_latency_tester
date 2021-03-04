@@ -17,4 +17,3 @@ def data_plotter(filename: str, joint: int, total_time: int) -> None:
     plt.plot(time_list, data)
     plt.show()       
 
-data_plotter('motion_log.csv', 0, 2)

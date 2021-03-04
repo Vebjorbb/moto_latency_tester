@@ -2,7 +2,7 @@ from moto_tester import MotoTester
 from moto.simple_message import ValidFields, JointTrajPtFull
 from moto import ControlGroupDefinition
 import numpy as np
-from utilities import *
+from utilities import make_traj_pt
 
 t = MotoTester('192.168.255.200', [
         ControlGroupDefinition(

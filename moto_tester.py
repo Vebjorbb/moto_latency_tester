@@ -66,7 +66,7 @@ class MotoTester(Moto):
             self.motion.send_joint_trajectory_point(pos)
 
     #Logs the joint positions of the robot while moving from one position to another  
-    def logger(self, pos: JointTrajPtFull, log_freq = 250, buffer = 0.5) -> None:
+    def logger(self, pos: JointTrajPtFull, log_freq = 25, buffer = 0.5) -> None:
 
         cycle_counter = 0
 
