@@ -21,14 +21,25 @@ def data_plotter(filename: str, joint: int, total_time: int) -> None:
 def data_plotter_rt(filename: str, joint: int) -> None:
     commands = []
     feedback = []
+    current_pos = 0
+    previous_pos = 0
     total_lines = 0
+
     with open(filename) as csv_file:
         csv_reader = csv.reader(csv_file)
         
         for line in csv_reader:
             line = line[0].split('\t')
+            current_pos = float(line[joint+20])
             commands.append(float(line[joint+10]))
-            feedback.append(float(line[joint]))
+
+            if current_pos < previous_pos:
+                feedback.append(-float(line[joint]))
+            else:
+                feedback.append(float(line[joint]))
+            
+            previous_pos = current_pos
+
             total_lines = csv_reader.line_num
 
     cycle_list = np.linspace(0, total_lines, total_lines)
@@ -37,3 +48,4 @@ def data_plotter_rt(filename: str, joint: int) -> None:
     plt.legend(loc='upper right')
     plt.grid(True)
     plt.show()
+    

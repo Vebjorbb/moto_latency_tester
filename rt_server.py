@@ -77,7 +77,7 @@ def main():
             )
 
             server.sendto(command_msg.to_bytes(), addr)
-            csv_writer.writerow(state.joint_state_data[1].vel + command_msg.body.joint_command_data[1].command)
+            csv_writer.writerow(state.joint_state_data[1].vel + command_msg.body.joint_command_data[1].command + state.joint_state_data[1].pos)
             
 
         except socket.timeout as e:
