@@ -3,6 +3,7 @@ import logging
 import socket
 import time
 import numpy as np
+import csv
 
 from moto.simple_message import *
 
@@ -17,6 +18,8 @@ def start_udp_server(address):
 
 
 def main():
+    logger = open('motion_log_rt.csv', 'w')
+    csv_writer = csv.writer(logger, delimiter='\t')
     server = start_udp_server(("192.168.255.3", 50244))
     started = False
 
@@ -42,7 +45,7 @@ def main():
                 p0 = copy(state.joint_state_data[1].pos)
 
             print("state:   {}".format(state.joint_state_data[1].vel[0]))
-
+        
             # pd = np.deg2rad(10)
             # Kv = 0.1
             # vd = Kv * (pd - state.joint_state_data[1].pos[0])
@@ -74,6 +77,9 @@ def main():
             )
 
             server.sendto(command_msg.to_bytes(), addr)
+            csv_writer.writerow(state.joint_state_data[1].vel + command_msg.body.joint_command_data[1].command)
+            
+
         except socket.timeout as e:
             logging.error("Timed out!")
             break
