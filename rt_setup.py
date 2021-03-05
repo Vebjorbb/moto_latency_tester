@@ -1,6 +1,7 @@
 from moto_tester import MotoTester
 from moto_tester_rt import MotoTesterRt
 from moto import ControlGroupDefinition
+from moto.simple_message import ResultType
 
 
 t = MotoTester('192.168.255.200', [
@@ -20,5 +21,19 @@ t = MotoTester('192.168.255.200', [
     ]
     )
 
-t.motion.start_trajectory_mode()
-exit()
+while True:
+    print('Starting setup...')
+    t.motion.start_trajectory_mode()
+    if t.motion.check_motion_ready().body.result != ResultType.SUCCESS:
+        sub_code = t.motion.check_motion_ready().body.subcode
+        print(f"Setup failed with code: {sub_code}")
+        response = input('Would you like to retry? y/n: ')
+
+        if response == 'y':
+            pass
+        else:
+            t.quit()
+    
+    if t.motion.check_motion_ready().body.result == ResultType.SUCCESS:
+        print('Setup successful')
+        exit()
