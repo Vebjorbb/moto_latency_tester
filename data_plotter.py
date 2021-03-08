@@ -33,6 +33,10 @@ def data_plotter_rt(filename: str, joint: int) -> None:
 
             total_lines = csv_reader.line_num
 
+    for i in range(len(commands)):
+        commands[i] = np.rad2deg(commands[i])
+        feedback[i] = np.rad2deg(feedback[i])
+        
     cycle_list = np.linspace(0, total_lines, total_lines)
     plt.plot(cycle_list, commands, label='Command')
     plt.plot(cycle_list, feedback, label='Feedback')
