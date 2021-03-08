@@ -40,6 +40,8 @@ def data_plotter_rt(filename: str, joint: int) -> None:
     plt.grid(True)
     plt.show()
 
+
+#Changes the velocity sign correctly
 def fix_velocity_sign(filename: str) -> None:
     name_components = filename.split('.')
     new_filename = name_components[0] + '_fixed.' + name_components[1]
@@ -60,4 +62,75 @@ def fix_velocity_sign(filename: str) -> None:
                 csv_writer.writerow(line)
                 previous_pos = current_pos   
 
+#Calculates the latency for each joint from a rt test-file
+def calculate_latency(filename: str):
+    latencies = [0.0]*10
+    commands = []
+    feedbacks = []
+    with open(filename) as csv_file:
+        csv_reader = csv.reader(csv_file)
+        for line in csv_reader:
+            line = line[0].split('\t')
+            for element in line:
+                float(element)
+            commands.append(line[10:20])
+            feedbacks.append(line[0:10])
     
+    for command in commands:
+        for i in range(len(command)):
+            command[i] = float(command[i])
+    
+    for feedback in feedbacks:
+        for i in range(len(feedback)):
+            feedback[i] = float(feedback[i])
+
+    
+    latency_list = []
+
+    for i  in range(100, 1100):
+        current_command = commands[i][0]
+        previous_command = commands[i-1][0]
+
+        rising_command = 0
+        if current_command > previous_command:
+            rising_command = 1
+        else:
+            rising_command = 0
+
+
+        current_feedback = 0
+        previous_feedback = 0
+
+        latency_counter = 0 
+        rising_feedback = 0
+        for j in range(i, len(feedbacks)):
+            current_feedback = feedbacks[j][0]
+            previous_feedback = feedbacks[j-1][0]
+            
+            if current_feedback > previous_feedback:
+                rising_feedback = 1
+            else:
+                rising_feedback = 0
+
+
+            if current_command > previous_feedback and current_command < current_feedback and rising_feedback == rising_command:
+                latency_list.append(latency_counter)
+                print('Hello 1, {}'.format(latency_counter))
+                break
+            elif current_command < previous_feedback and current_command > current_feedback and rising_feedback == rising_command:
+                latency_list.append(latency_counter)
+                print('hello 2, {}'.format(latency_counter))
+                break
+            else:
+                latency_counter += 1
+        
+        
+    latencies[0] = sum(latency_list)/len(latency_list)
+    
+    return(latencies)
+
+        
+
+
+
+print(calculate_latency('motion_log_rt_ex_fixed.csv'))
