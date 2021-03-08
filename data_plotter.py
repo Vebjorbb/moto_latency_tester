@@ -136,5 +136,4 @@ def calculate_latency(filename: str):
     
     return(latencies)
 
-        
-print(calculate_latency('motion_log_rt_ex_fixed.csv'))
+    
