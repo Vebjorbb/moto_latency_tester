@@ -1,6 +1,15 @@
 import csv
 import numpy as np
 from matplotlib import pyplot as plt
+import enum
+
+class Joints(enum.Enum):
+    S = 0
+    L = 1
+    U = 2
+    R = 3
+    B = 4
+    T = 5
 
 #Plots data from motion_log.csv
 def data_plotter(filename: str, joint: int, total_time: int) -> None:
@@ -41,6 +50,7 @@ def data_plotter_rt(filename: str, joint: int) -> None:
     plt.plot(cycle_list, commands, label='Command')
     plt.plot(cycle_list, feedback, label='Feedback')
     plt.legend(loc='upper right')
+    plt.title('Real-Time Control, Joint: {}'.format(Joints(joint).name))
     plt.grid(True)
     plt.show()
 
