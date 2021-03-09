@@ -2,3 +2,4 @@
 log/
 __pycache__/
 *.csv
+test_logs/
