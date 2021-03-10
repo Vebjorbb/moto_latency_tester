@@ -96,9 +96,10 @@ def calculate_latency(filename: str):
 def multiple_latency(directory: str) -> None:
     latency_list = []
     for file in os.listdir(directory):
-        latency = calculate_latency(os.path.join(directory, file))
-        latency_list.append(latency)
-        print('{}\n{}\n'.format(file, latency))
+        if os.path.isfile(os.path.join(directory,file)):
+            latency = calculate_latency(os.path.join(directory, file))
+            latency_list.append(latency)
+            print('{}\n{}\n'.format(file, latency))
     return(latency_list)
 
 
@@ -126,13 +127,15 @@ def fix_velocity_sign(filename: str) -> None:
 #Changes the velocity sign for all files in a directory
 def fix_vel_multi(directory: str) -> None:
     for file in os.listdir(directory):
-        fix_velocity_sign(os.path.join(directory, file))
+        if os.path.isfile(os.path.join(directory, file)):
+            fix_velocity_sign(os.path.join(directory, file))
 
 #Calculates the average latency of all files in a directory
 def calc_average_latency(directory: str):
     latency_list = []
     for file in os.listdir(directory):
-        latency_list.append(calculate_latency(os.path.join(directory, file)))
+        if os.path.isfile(os.path.joint(directory, file)):
+            latency_list.append(calculate_latency(os.path.join(directory, file)))
 
     avg_latency = [0.0]*10
     for latency in latency_list:
