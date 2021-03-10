@@ -3,3 +3,5 @@ log/
 __pycache__/
 *.csv
 test_logs/
+robot_rep/
+archive/
