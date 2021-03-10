@@ -2,6 +2,7 @@ from moto.simple_message import JointTrajPtFull, ValidFields
 from typing import List
 import numpy as np
 import csv
+import os
 
 #Generates trajectory points from a position and time argument
 def make_traj_pt(pos: List[float], 
@@ -45,7 +46,7 @@ def calculate_latency(filename: str):
     #An average latency is calculated for each joint
     for joint in range(len(latencies)):
         latency_list = []
-        for i  in range(100, 1100):
+        for i  in range(100, 2100):
             current_command = commands[i][joint]
             previous_command = commands[i-1][joint]
 
@@ -122,3 +123,21 @@ def fix_velocity_sign(filename: str) -> None:
 def fix_vel_multi(filename: str, nr_of_files: int) -> None:
     for i in range(nr_of_files):
         fix_velocity_sign(filename + '_' + '{}'.format(i+1) + '.csv')
+
+#Calculates the average latency of all files in a directory
+def calc_average_latency(directory: str):
+    latency_list = []
+    for file in os.listdir(directory):
+        latency_list.append(calculate_latency(os.path.join(directory, file)))
+
+    avg_latency = [0.0]*10
+    for latency in latency_list:
+        counter = 0
+        for element in latency:
+            avg_latency[counter] +=element
+            counter += 1
+
+    for i in range(len(avg_latency)):
+        avg_latency[i] = avg_latency[i]/len(latency_list)
+
+    return(avg_latency)
