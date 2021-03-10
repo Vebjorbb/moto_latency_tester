@@ -96,7 +96,9 @@ def calculate_latency(filename: str):
 def multiple_latency(directory: str) -> None:
     latency_list = []
     for file in os.listdir(directory):
-        latency_list.append(calculate_latency(os.path.join(directory, file)))
+        latency = calculate_latency(os.path.join(directory, file))
+        latency_list.append(latency)
+        print('{}\n{}\n'.format(file, latency))
     return(latency_list)
 
 
