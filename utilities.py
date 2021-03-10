@@ -92,10 +92,12 @@ def calculate_latency(filename: str):
     
     return(latencies)
 
-#Calculates latency for multiple files
-def multiple_latency(filename: str, nr_of_files: int) -> None:
-    for i in range(nr_of_files):
-        print(calculate_latency(filename + '_' + '{}'.format(i+1) + '.csv'))
+#Calculates latency for all files in a directory
+def multiple_latency(directory: str) -> None:
+    latency_list = []
+    for file in os.listdir(directory):
+        latency_list.append(calculate_latency(os.path.join(directory, file)))
+    return(latency_list)
 
 
 #Changes the velocity sign correctly
@@ -119,10 +121,10 @@ def fix_velocity_sign(filename: str) -> None:
                 csv_writer.writerow(line)
                 previous_pos = current_pos   
 
-#Changes the velocity sign for multiple files
-def fix_vel_multi(filename: str, nr_of_files: int) -> None:
-    for i in range(nr_of_files):
-        fix_velocity_sign(filename + '_' + '{}'.format(i+1) + '.csv')
+#Changes the velocity sign for all files in a directory
+def fix_vel_multi(directory: str) -> None:
+    for file in os.listdir(directory):
+        fix_velocity_sign(os.path.join(directory, file))
 
 #Calculates the average latency of all files in a directory
 def calc_average_latency(directory: str):
