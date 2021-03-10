@@ -5,3 +5,4 @@ __pycache__/
 test_logs/
 robot_rep/
 archive/
+robot_*/
