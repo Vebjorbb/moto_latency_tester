@@ -134,7 +134,7 @@ def fix_vel_multi(directory: str) -> None:
 def calc_average_latency(directory: str):
     latency_list = []
     for file in os.listdir(directory):
-        if os.path.isfile(os.path.joint(directory, file)):
+        if os.path.isfile(os.path.join(directory, file)):
             latency_list.append(calculate_latency(os.path.join(directory, file)))
 
     avg_latency = [0.0]*10
