@@ -47,10 +47,28 @@ def fix_vel_multi(directory: str) -> None:
         if os.path.isfile(os.path.join(directory, file)):
             fix_velocity_sign(os.path.join(directory, file))
 
+#output index where dataset crosses x-axis
+def find_zeros(data):
+    zeros = []
+    cycle = 100
+    current_data = data[cycle]
+    previous_data = data[cycle-1]
+    
+    while cycle <= 2100:
+        if np.sign(current_data) != np.sign(previous_data):
+            zeros.append(cycle)
+        cycle += 1 
+        current_data = data[cycle]
+        previous_data = data[cycle-1]
 
-def calculate_lag(filename:str, joint: int):
+    return(zeros)
+
+
+#calculates latency based on zero-points on the sine-waves
+def calculate_latency(filename:str, joint: int):
     commands = []
     feedbacks = []
+    latencies = []
 
     #Reads data from csv-file and saves it in lists
     with open(filename) as csv_file:
@@ -59,41 +77,49 @@ def calculate_lag(filename:str, joint: int):
             line = line[0].split('\t')
             for element in line:
                 float(element)
-            commands.append(line[10:20])
-            feedbacks.append(line[0:10])
+            commands.append(line[joint+10])
+            feedbacks.append(line[joint])
     
     #Convert from lists of strings to lits of floats
-    for command in commands:
-        for i in range(len(command)):
-            command[i] = float(command[i])
+    for i in range(len(commands)):
+        commands[i] = float(commands[i])
     
-    for feedback in feedbacks:
-        for i in range(len(feedback)):
-            feedback[i] = float(feedback[i])
+    for i in range(len(feedbacks)):
+        feedbacks[i] = float(feedbacks[i])
+
     
-    cycle = 100
-    current_command = commands[cycle][joint]
-    previous_command = commands [cycle - 1][joint]
-    
-    while np.sign(previous_command) == np.sign(current_command):
-        cycle += 1
-        current_command = commands[cycle][joint]
-        previous_command = commands[cycle-1][joint]
+    #Find all zeros and calculate latency
+    zeros = find_zeros(commands)
 
-    lag = 0
-    current_feedback = feedbacks [cycle][joint]
-    previous_feedback = feedbacks[cycle - 1][joint]
+    for zero in zeros:
+        latency = 0
+        current_feedback = feedbacks[zero]
+        previous_feedback = feedbacks[zero-1]
+        
+        while np.sign(current_feedback) == np.sign(previous_feedback):
+            latency += 1
+            current_feedback = feedbacks[zero + latency]
+            previous_feedback = feedbacks[zero + latency - 1]
+        latencies.append(latency)
 
-    while np.sign(previous_feedback) == np.sign(current_feedback):
-        lag += 1
-        current_feedback = feedbacks[cycle + lag][joint]
-        previous_feedback = feedbacks[cycle + lag - 1][joint]
+    return(latencies)
 
-    return(lag)
+#Calculates average latency for a file from zero-points
+def calculate_average_latency(filename: str, joint: int):
+    latencies = calculate_latency(filename, joint)
+    avg = sum(latencies)/len(latencies)
+    return(avg)
 
-
-def calculate_lag_multi(directory: str, joint: int):
+#Calculates and prints latencies and average latency for all files, and total average
+def calculate_latency_multi(directory: str, joint: int):
+    latency_list = []
     for file in os.listdir(directory):
         if os.path.isfile(os.path.join(directory, file)):
-            print(calculate_lag(os.path.join(directory, file), joint))   
-            
+            print(file)
+            latencies = calculate_latency(os.path.join(directory, file),joint)
+            avg = sum(latencies)/len(latencies)
+            latency_list.append(avg)
+            print('Latencies: {}\nAverage: {}\n'.format(latencies, avg))
+    
+    total_avg = sum(latency_list)/len(latency_list)
+    print('Total average: {}'.format(total_avg))
