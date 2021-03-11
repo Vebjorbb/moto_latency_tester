@@ -55,6 +55,8 @@ def data_plotter_rt(filename: str, joint: int) -> None:
     plt.grid(True)
     plt.show()
 
+
+#Plots all files in a directory
 def data_multiplotter_rt(directory: str, joint: int) -> None:
     nr_of_files = 0
     for file in os.listdir(directory):
