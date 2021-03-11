@@ -54,7 +54,7 @@ def find_zeros(data):
     current_data = data[cycle]
     previous_data = data[cycle-1]
     
-    while cycle <= 2100:
+    while cycle <= (len(data)-100):
         if np.sign(current_data) != np.sign(previous_data):
             zeros.append(cycle)
         cycle += 1 
