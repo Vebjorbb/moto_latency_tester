@@ -123,3 +123,11 @@ def calculate_latency_multi(directory: str, joint: int):
     
     total_avg = sum(latency_list)/len(latency_list)
     print('Total average: {}'.format(total_avg))
+
+#Return the number of lines in a csv file
+def count_lines(filename: str):
+    with open(filename) as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter='\t')
+        for _ in csv_reader:
+            pass
+        return(csv_reader.line_num)
