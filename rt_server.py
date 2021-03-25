@@ -26,7 +26,9 @@ def main():
 
     t0 = time.time()
     p0 = None
+    total_error = 0
     k_p = 0.1
+    k_i = 0.1
     while True:
 
         try:
@@ -60,10 +62,11 @@ def main():
             print("command: {}".format(vd))
 
             error = vd - state.joint_state_data[0].vel[0]
+            total_error = total_error + error
             
             print("error: {}".format(error))
 
-            vd_corr = vd + k_p*error
+            vd_corr = vd + k_p*error + k_i*total_error
 
             command_msg: SimpleMessage = SimpleMessage(
                 Header(
