@@ -26,9 +26,14 @@ def main():
 
     t0 = time.time()
     p0 = None
+
+    #Parameters for PID-controller
     total_error = 0
-    k_p = 0.1
-    k_i = 0.1
+    curr_vel = 0
+    prev_vel = 0
+    k_p = 0
+    k_i = 0
+    k_d = 0
     while True:
 
         try:
@@ -61,12 +66,16 @@ def main():
 
             print("command: {}".format(vd))
 
+            #Calculate variables for PID-controller
+            curr_vel = state.joint_state_data[0].vel[0]
             error = vd - state.joint_state_data[0].vel[0]
             total_error = total_error + error
             
             print("error: {}".format(error))
 
-            vd_corr = vd + k_p*error + k_i*total_error
+            #Adjust velocity with PID-controller
+            vd_corr = vd + k_p*error + k_i*total_error + k_d*(curr_vel-prev_vel)
+            prev_vel = curr_vel
 
             command_msg: SimpleMessage = SimpleMessage(
                 Header(
