@@ -3,6 +3,7 @@ from moto.simple_message import JointTrajPtFull, ValidFields, ReplyType, ResultT
 import numpy as np
 import csv
 import time
+from matplotlib import pyplot as plt 
 
 class MotoTester(Moto):
     def __init__(self, ip, control_group_defs):
@@ -94,4 +95,17 @@ class MotoTester(Moto):
                 time.sleep(1/log_freq)
 
             print('Finished logging!')
+
+    def test_io_latency(self, nr_of_tests):
+        latencies = []
+        for _ in range(nr_of_tests):
+            self.io.write_bit(10010, 0)
+            self.io.write_bit(10010, 1)
+            start_time = time.time()
+            while(self.io.read_bit(10010).body.value != 1):
+                pass
+            end_time = time.time()
+            latencies.append(end_time-start_time)
+
+        print('Average latency: {}\nStandard deviation: {}'.format(np.mean(latencies), np.std(latencies)))
     
