@@ -26,6 +26,7 @@ def main():
 
     t0 = time.time()
     p0 = None
+    k_p = 0.1
     while True:
 
         try:
@@ -58,6 +59,12 @@ def main():
 
             print("command: {}".format(vd))
 
+            error = vd - state.joint_state_data[0].vel[0]
+            
+            print("error: {}".format(error))
+
+            vd_corr = vd + k_p*error
+
             command_msg: SimpleMessage = SimpleMessage(
                 Header(
                     MsgType.MOTO_REALTIME_MOTION_JOINT_COMMAND_EX,
@@ -69,7 +76,7 @@ def main():
                     state.number_of_valid_groups,
                     [
                         MotoRealTimeMotionJointCommandExData(
-                            0, [vd, 0.0, 0.0, 0.0, 0.0, 0.0]
+                            0, [vd_corr, 0.0, 0.0, 0.0, 0.0, 0.0]
                         ),
                         MotoRealTimeMotionJointCommandExData(1, [0, 0]),
                         
@@ -79,7 +86,8 @@ def main():
 
             server.sendto(command_msg.to_bytes(), addr)
             #csv_writer.writerow(state.joint_state_data[1].vel + command_msg.body.joint_command_data[1].command + state.joint_state_data[1].pos)
-            csv_writer.writerow(state.joint_state_data[0].vel + command_msg.body.joint_command_data[0].command + state.joint_state_data[0].pos)
+            #csv_writer.writerow(state.joint_state_data[0].vel + command_msg.body.joint_command_data[0].command + state.joint_state_data[0].pos)
+            csv_writer.writerow(state.joint_state_data[0].vel + [vd]*10 + state.joint_state_data[0].pos)
 
         except socket.timeout as e:
             logging.error("Timed out!")
