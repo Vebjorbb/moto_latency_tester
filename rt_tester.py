@@ -2,7 +2,10 @@ from moto_tester_rt import MotoTesterRt
 from moto import ControlGroupDefinition
 from moto_tester import MotoTester
 
-rt = MotoTesterRt('192.168.255.200', [
+#ip = "localhost"
+ip = "192.168.255.200"
+
+rt = MotoTesterRt(ip, [
         ControlGroupDefinition(
             groupid="R1",
             groupno=0,
