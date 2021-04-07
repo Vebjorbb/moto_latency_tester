@@ -20,17 +20,19 @@ def start_udp_server(address):
 def main():
     logger = open('motion_log_rt.csv', 'w')
     csv_writer = csv.writer(logger, delimiter='\t')
-    #server = start_udp_server(("192.168.255.3", 50244))
-    server = start_udp_server(("localhost", 50244))
+    server = start_udp_server(("192.168.255.3", 50244))
+    #server = start_udp_server(("localhost", 50244))
     started = False
 
-    t0 = time.time()
+    t0 = time.time()    
     p0 = None
 
     #Parameters for PID-controller
     total_error = 0
     curr_vel = 0
     prev_vel = 0
+    curr_pos = 0
+    prev_pos = 0 
     k_p = 0
     k_i = 0
     k_d = 0
@@ -52,6 +54,13 @@ def main():
 
             if p0 is None:
                 p0 = copy(state.joint_state_data[0].pos)
+            
+            curr_pos = state.joint_state_data[0].pos[0]
+
+            if curr_pos < prev_pos:
+                state.joint_state_data[0].vel[0] = -state.joint_state_data[0].vel[0]
+
+            prev_pos = curr_pos
 
             print("state:   {}".format(state.joint_state_data[0].vel[0]))
         
