@@ -21,21 +21,18 @@ def main():
     logger = open('motion_log_rt.csv', 'w')
     csv_writer = csv.writer(logger, delimiter='\t')
     server = start_udp_server(("192.168.255.3", 50244))
-    #server = start_udp_server(("localhost", 50244))
     started = False
 
     t0 = time.time()    
     p0 = None
 
     #Parameters for PID-controller
-    total_error = 0
-    curr_vel = 0
-    prev_vel = 0
+    total_error, curr_vel, prev_vel = 0, 0, 0
     curr_pos = [0]*10
     prev_pos = [0]*10
-    k_p = 1
+    k_p = 0
     k_i = 0
-    k_d = 8
+    k_d = 0
     while True:
 
         try:
@@ -65,13 +62,8 @@ def main():
 
             print("state:   {}".format(state.joint_state_data[0].vel[0]))
         
-            # pd = np.deg2rad(10)
-            # Kv = 0.1
-            # vd = Kv * (pd - state.joint_state_data[1].pos[0])
+            #Define a joint velocity as a sinus-wave
             vd  = 0.3 * (np.sin(3.0 * time.time() - t0))
-            # vd  = 0.05 * (np.sin(0.1 * time.time() - t0))
-
-            #vd = 0.05
 
 
             print("command: {}".format(vd))
