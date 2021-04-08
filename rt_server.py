@@ -31,11 +31,11 @@ def main():
     total_error = 0
     curr_vel = 0
     prev_vel = 0
-    curr_pos = 0
-    prev_pos = 0 
-    k_p = 0
+    curr_pos = [0]*10
+    prev_pos = [0]*10
+    k_p = 1
     k_i = 0
-    k_d = 0
+    k_d = 8
     while True:
 
         try:
@@ -55,10 +55,11 @@ def main():
             if p0 is None:
                 p0 = copy(state.joint_state_data[0].pos)
             
-            curr_pos = state.joint_state_data[0].pos[0]
+            curr_pos = state.joint_state_data[0].pos
 
-            if curr_pos < prev_pos:
-                state.joint_state_data[0].vel[0] = -state.joint_state_data[0].vel[0]
+            for i in range(10):
+                if np.greater(prev_pos[i],curr_pos[i]):
+                    state.joint_state_data[0].vel[i] = -state.joint_state_data[0].vel[i]
 
             prev_pos = curr_pos
 
