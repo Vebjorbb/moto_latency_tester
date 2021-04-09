@@ -22,3 +22,5 @@ rt = MotoTesterRt(ip, [
     ]
     )
 
+rt.rt.connect()
+

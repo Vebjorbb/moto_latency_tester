@@ -20,12 +20,23 @@ def start_udp_server(address):
 def main():
     logger = open('motion_log_rt.csv', 'w')
     csv_writer = csv.writer(logger, delimiter='\t')
-    #server = start_udp_server(("192.168.255.3", 50244))
-    server = start_udp_server(("localhost", 50244))
+    server = start_udp_server(("192.168.255.3", 50244)) 
     started = False
 
-    t0 = time.time()
-    p0 = None
+    t0 = time.time()    
+
+    #Parameters for PID-controller
+    total_error = [0]*10
+    curr_vel = [0]*10
+    prev_vel = [0]*10
+    prev_pos = [0]*10
+    curr_pos = [0]*10
+    #Tuning parameters for each joint
+    k_p = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    k_i = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    k_d = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+
     while True:
 
         try:
@@ -41,22 +52,34 @@ def main():
 
             msg = SimpleMessage.from_bytes(bytes_)
             state: MotoRealTimeMotionJointStateEx = msg.body
+            
+            curr_pos = state.joint_state_data[0].pos
 
-            if p0 is None:
-                p0 = copy(state.joint_state_data[0].pos)
+            for i in range(10):
+                if np.greater(prev_pos[i],curr_pos[i]):
+                    state.joint_state_data[0].vel[i] = -state.joint_state_data[0].vel[i]
 
-            print("state:   {}".format(state.joint_state_data[0].vel[0]))
+            prev_pos = curr_pos
         
-            # pd = np.deg2rad(10)
-            # Kv = 0.1
-            # vd = Kv * (pd - state.joint_state_data[1].pos[0])
-            vd  = 0.3 * (np.sin(3.0 * time.time() - t0))
-            # vd  = 0.05 * (np.sin(0.1 * time.time() - t0))
+            #Define a joint velocity as a sinus-wave
+            vds  = 0.3 * (np.sin(3.0 * time.time() - t0))
 
-            #vd = 0.05
+            #Define desired joint velocity for each joint
+            vd = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+            
 
+            #Calculate variables for PID-controller
+            curr_vel = state.joint_state_data[0].vel
+            error = np.subtract(vd, curr_vel)
+            total_error = np.add(total_error, error)
 
-            print("command: {}".format(vd))
+            #Adjust velocity with PID-controller
+            v_derivative = np.multiply(k_d, np.subtract(curr_vel,prev_vel))
+            v_integral = np.multiply(k_i, total_error)
+            v_proportional = np.multiply(k_p, error)
+            vd_corr = np.add(vd, np.add(v_proportional, np.add(v_integral, v_derivative)))
+    
+            prev_vel = curr_vel
 
             command_msg: SimpleMessage = SimpleMessage(
                 Header(
@@ -69,7 +92,7 @@ def main():
                     state.number_of_valid_groups,
                     [
                         MotoRealTimeMotionJointCommandExData(
-                            0, [vd, 0.0, 0.0, 0.0, 0.0, 0.0]
+                            0, vd_corr[0:6],
                         ),
                         MotoRealTimeMotionJointCommandExData(1, [0, 0]),
                         
@@ -78,8 +101,8 @@ def main():
             )
 
             server.sendto(command_msg.to_bytes(), addr)
-            #csv_writer.writerow(state.joint_state_data[1].vel + command_msg.body.joint_command_data[1].command + state.joint_state_data[1].pos)
-            csv_writer.writerow(state.joint_state_data[0].vel + command_msg.body.joint_command_data[0].command + state.joint_state_data[0].pos)
+            
+            csv_writer.writerow(state.joint_state_data[0].vel + vd + state.joint_state_data[0].pos)
 
         except socket.timeout as e:
             logging.error("Timed out!")
