@@ -23,7 +23,8 @@ def main():
     server = start_udp_server(("192.168.255.3", 50244)) 
     started = False
 
-    t0 = time.time()    
+    t0 = time.time()
+    cycle_counter = 0
 
     #Parameters for PID-controller
     total_error = [0]*10
@@ -32,15 +33,15 @@ def main():
     prev_pos = [0]*10
     curr_pos = [0]*10
     #Tuning parameters for each joint
-    k_p = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    k_i = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    k_d = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    k_p = [0.8*2.4,         0.8*2,          0.8*1.7,        0.8*1.6,        0.8*1.7,        0.8*1.8,        0,      0,      0,      0]
+    k_i = [0,               0,              0,              0,              0,              0,              0,      0,      0,      0]
+    k_d = [0.10*2.4*0.18,   0.1*2*0.176,    0.1*1.7*0.184,  0.1*1.6*0.18,   0.1*1.7*0.188,  0.1*1.8*0.2,    0,      0,      0,      0]
 
 
     while True:
-
         try:
             bytes_, addr = server.recvfrom(1024)
+            print(cycle_counter)
             if not bytes_:
                 logging.error("Stopping!")
                 break
@@ -64,8 +65,14 @@ def main():
             #Define a joint velocity as a sinus-wave
             vds  = 0.3 * (np.sin(3.0 * time.time() - t0))
 
+            #Step response
+            # if (cycle_counter > 125) and (cycle_counter < 875):
+            #     vd = [0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.0, 0.0, 0.0, 0.0]
+            # else:
+            #     vd = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] 
+            
             #Define desired joint velocity for each joint
-            vd = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+            vd = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] 
             
 
             #Calculate variables for PID-controller
@@ -103,11 +110,10 @@ def main():
             server.sendto(command_msg.to_bytes(), addr)
             
             csv_writer.writerow(state.joint_state_data[0].vel + vd + state.joint_state_data[0].pos)
-
+            cycle_counter += 1
         except socket.timeout as e:
             logging.error("Timed out!")
             break
-
 
 if __name__ == "__main__":
 
