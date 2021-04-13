@@ -52,6 +52,8 @@ def data_plotter_rt(filename: str, joint: int) -> None:
     plt.plot(cycle_list, feedback, label='Feedback')
     plt.legend(loc='upper right')
     plt.title('Real-Time Control, Joint: {}'.format(Joints(joint).name))
+    plt.ylabel('Joint velocity [deg/s]')
+    plt.xlabel('Cycles')
     plt.grid(True)
     plt.show()
 
