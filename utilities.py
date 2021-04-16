@@ -131,3 +131,42 @@ def count_lines(filename: str):
         for _ in csv_reader:
             pass
         return(csv_reader.line_num)
+
+def calculate_response_time(filename:str, joint: int):
+    commands = []
+    feedbacks = []
+    response_time =  0
+
+    #Reads data from csv-file and saves it in lists
+    with open(filename) as csv_file:
+        csv_reader = csv.reader(csv_file)
+        for line in csv_reader:
+            line = line[0].split('\t')
+            for element in line:
+                float(element)
+            commands.append(line[joint+10])
+            feedbacks.append(line[joint])
+    
+    #Convert from lists of strings to lits of floats
+    for i in range(len(commands)):
+        commands[i] = float(commands[i])
+    
+    for i in range(len(feedbacks)):
+        feedbacks[i] = float(feedbacks[i])
+    
+    #Calculate when the step response is sendt
+    command_time = 0
+    i = 0
+    while commands[i] == 0:
+        command_time += 1
+        i += 1
+
+    #Calculate when the robot starts reacting to the response
+    feedback_time = 0
+    i = 0
+    while feedbacks[i] == 0:
+        feedback_time += 1
+        i += 1
+    
+    response_time = feedback_time - command_time
+    return(response_time)
