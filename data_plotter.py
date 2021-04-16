@@ -3,6 +3,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 import enum
 import os
+from utilities import read_csv_rt
 
 class Joints(enum.Enum):
     S = 0
@@ -96,4 +97,40 @@ def data_multiplotter_rt(directory: str, joint: int) -> None:
             ax_nr += 1
     
     plt.show()  
+
+#Plots feedback from multiple csv files as well as command velocity from the first file
+def compare_plots(filenames: list, joint: int, 
+    cutoff: int = 1500,
+    title: str = 'Step Response',
+    legend: list = []) -> None:
+
+    feedback_list = []
+    command, feedback = read_csv_rt(filenames[0], joint)
+    command = command[0:cutoff]
+    feedback_list.append(feedback[0:cutoff])
+    for i in range(1,len(filenames)):
+        _, feedback = read_csv_rt(filenames[i], joint)
+        feedback_list.append(feedback[0:cutoff])
+    
+    i = 0
+    while(len(legend) < len(feedback_list)):
+        legend.append('Feedback' + ' ' + str(i))
+        i += 1
+
+    cycle_list = np.linspace(0, cutoff, cutoff)
+    command = np.rad2deg(command)
+    plt.plot(cycle_list, command, label='Command')
+
+    i = 0
+    for feedback in feedback_list:
+        feedback = np.rad2deg(feedback)
+        plt.plot(cycle_list, feedback, label=legend[i])
+        i += 1
+
+    plt.legend(loc='upper right')
+    plt.title(title + ', Joint: {}'.format(Joints(joint).name))
+    plt.ylabel('Joint velocity [deg/s]')
+    plt.xlabel('Cycles')
+    plt.grid(True)
+    plt.show()
     
