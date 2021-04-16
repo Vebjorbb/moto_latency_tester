@@ -171,3 +171,45 @@ def calculate_response_time(filename:str, joint: int):
     
     response_time = feedback_time - command_time
     return(response_time)
+
+#Clculates latency for a step response
+def step_latency(filename: str, joint: int):
+    commands = []
+    feedbacks = []
+
+    #Reads data from csv-file and saves it in lists
+    with open(filename) as csv_file:
+        csv_reader = csv.reader(csv_file)
+        for line in csv_reader:
+            line = line[0].split('\t')
+            for element in line:
+                float(element)
+            commands.append(line[joint+10])
+            feedbacks.append(line[joint])
+    
+    #Convert from lists of strings to lits of floats
+    for i in range(len(commands)):
+        commands[i] = float(commands[i])
+    
+    for i in range(len(feedbacks)):
+        feedbacks[i] = float(feedbacks[i])
+    
+    #Find the magnitude of and time where the step occurs
+    step_magnitude = 0
+    step_time = 0
+    for command in commands:
+        if command != 0:
+            step_magnitude = command
+            break
+        step_time += 1
+
+    #Find the time it takes for the feebck velocity to reach the step magnitude
+    feeback_time = 0
+    for feedback in feedbacks:
+        if feedback > step_magnitude:
+            break
+        else:
+            feeback_time += 1
+
+    step_latency = feeback_time-step_time
+    return(step_latency)
