@@ -63,12 +63,9 @@ def find_zeros(data):
 
     return(zeros)
 
-
-#calculates latency based on zero-points on the sine-waves
-def calculate_latency(filename:str, joint: int):
+def read_csv_rt(filename:str, joint: int):
     commands = []
     feedbacks = []
-    latencies = []
 
     #Reads data from csv-file and saves it in lists
     with open(filename) as csv_file:
@@ -87,7 +84,15 @@ def calculate_latency(filename:str, joint: int):
     for i in range(len(feedbacks)):
         feedbacks[i] = float(feedbacks[i])
 
-    
+    return commands, feedbacks
+
+
+#calculates latency based on zero-points on the sine-waves
+def calculate_latency(filename: str, joint: int):
+    latencies = []
+
+    commands, feedbacks = read_csv_rt(filename, joint)
+
     #Find all zeros and calculate latency
     zeros = find_zeros(commands)
 
@@ -134,26 +139,10 @@ def count_lines(filename: str):
 
 #Returns the time it takes from a command is sent to when the robot starts acting on the given command
 def calculate_response_time(filename:str, joint: int):
-    commands = []
-    feedbacks = []
     response_time =  0
 
-    #Reads data from csv-file and saves it in lists
-    with open(filename) as csv_file:
-        csv_reader = csv.reader(csv_file)
-        for line in csv_reader:
-            line = line[0].split('\t')
-            for element in line:
-                float(element)
-            commands.append(line[joint+10])
-            feedbacks.append(line[joint])
-    
-    #Convert from lists of strings to lits of floats
-    for i in range(len(commands)):
-        commands[i] = float(commands[i])
-    
-    for i in range(len(feedbacks)):
-        feedbacks[i] = float(feedbacks[i])
+    #Get command and feedback velocity from csv file
+    commands, feedbacks = read_csv_rt(filename, joint)
     
     #Calculate when the step response is sendt
     command_time = 0
@@ -174,25 +163,9 @@ def calculate_response_time(filename:str, joint: int):
 
 #Clculates latency for a step response
 def step_latency(filename: str, joint: int):
-    commands = []
-    feedbacks = []
 
-    #Reads data from csv-file and saves it in lists
-    with open(filename) as csv_file:
-        csv_reader = csv.reader(csv_file)
-        for line in csv_reader:
-            line = line[0].split('\t')
-            for element in line:
-                float(element)
-            commands.append(line[joint+10])
-            feedbacks.append(line[joint])
-    
-    #Convert from lists of strings to lits of floats
-    for i in range(len(commands)):
-        commands[i] = float(commands[i])
-    
-    for i in range(len(feedbacks)):
-        feedbacks[i] = float(feedbacks[i])
+    #Get command and feedback velocity from csv file
+    commands, feedbacks = read_csv_rt(filename, joint)
     
     #Find the magnitude of and time where the step occurs
     step_magnitude = 0
