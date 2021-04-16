@@ -62,17 +62,19 @@ def main():
 
             prev_pos = curr_pos
         
-            #Define a joint velocity as a sinus-wave
-            vds  = 0.3 * (np.sin(3.0 * time.time() - t0))
+            #Define a joint velocity as a sinus-wave, reset t0 to make velocity start at 0
+            # if cycle_counter == 0:
+            #     t0 = time.time()
+            vds  = 0.3 * (np.sin(3.0 * (time.time() - t0)))
 
             #Step response
             # if (cycle_counter > 125) and (cycle_counter < 875):
-            #     vd = [0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.0, 0.0, 0.0, 0.0]
+            #     vd = [0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
             # else:
             #     vd = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] 
             
             #Define desired joint velocity for each joint
-            vd = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] 
+            vd = [vds, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] 
             
 
             #Calculate variables for PID-controller
@@ -99,7 +101,7 @@ def main():
                     state.number_of_valid_groups,
                     [
                         MotoRealTimeMotionJointCommandExData(
-                            0, vd_corr[0:6],
+                            0, vd[0:6],
                         ),
                         MotoRealTimeMotionJointCommandExData(1, [0, 0]),
                         

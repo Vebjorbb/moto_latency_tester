@@ -132,6 +132,7 @@ def count_lines(filename: str):
             pass
         return(csv_reader.line_num)
 
+#Returns the time it takes from a command is sent to when the robot starts acting on the given command
 def calculate_response_time(filename:str, joint: int):
     commands = []
     feedbacks = []
