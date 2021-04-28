@@ -29,13 +29,13 @@ def main():
     #Parameters for PID-controller
     total_error = [0]*10
     curr_vel = [0]*10
-    prev_vel = [0]*10
+    prev_error = [0]*10
     prev_pos = [0]*10
     curr_pos = [0]*10
     #Tuning parameters for each joint
-    k_p = [0.8*2.4,         0.8*2,          0.8*1.7,        0.8*1.6,        0.8*1.7,        0.8*1.8,        0,      0,      0,      0]
-    k_i = [0,               0,              0,              0,              0,              0,              0,      0,      0,      0]
-    k_d = [0.10*2.4*0.18,   0.1*2*0.176,    0.1*1.7*0.184,  0.1*1.6*0.18,   0.1*1.7*0.188,  0.1*1.8*0.2,    0,      0,      0,      0]
+    k_p = [2.2, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    k_i = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    k_d = [10, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
 
     while True:
@@ -68,13 +68,13 @@ def main():
             vds  = 0.3 * (np.sin(3.0 * (time.time() - t0)))
 
             #Step response
-            # if (cycle_counter > 125) and (cycle_counter < 875):
-            #     vd = [0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-            # else:
-            #     vd = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] 
+            if (cycle_counter > 125) and (cycle_counter < 875):
+                vd = [0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+            else:
+                vd = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] 
             
             #Define desired joint velocity for each joint
-            vd = [vds, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] 
+            #vd = [vds, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] 
             
 
             #Calculate variables for PID-controller
@@ -83,12 +83,12 @@ def main():
             total_error = np.add(total_error, error)
 
             #Adjust velocity with PID-controller
-            v_derivative = np.multiply(k_d, np.subtract(curr_vel,prev_vel))
+            v_derivative = np.multiply(k_d, np.subtract(error, prev_error))
             v_integral = np.multiply(k_i, total_error)
             v_proportional = np.multiply(k_p, error)
-            vd_corr = np.add(vd, np.add(v_proportional, np.add(v_integral, v_derivative)))
-    
-            prev_vel = curr_vel
+            vd_corr = np.add(v_proportional, np.add(v_integral, v_derivative))
+            
+            prev_error = error
 
             command_msg: SimpleMessage = SimpleMessage(
                 Header(
@@ -101,7 +101,7 @@ def main():
                     state.number_of_valid_groups,
                     [
                         MotoRealTimeMotionJointCommandExData(
-                            0, vd[0:6],
+                            0, vd_corr[0:6],
                         ),
                         MotoRealTimeMotionJointCommandExData(1, [0, 0]),
                         
