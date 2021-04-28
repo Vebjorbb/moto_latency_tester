@@ -33,9 +33,9 @@ def main():
     prev_pos = [0]*10
     curr_pos = [0]*10
     #Tuning parameters for each joint
-    k_p = [2.2, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    k_p = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     k_i = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    k_d = [10, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    k_d = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
 
     while True:
@@ -86,7 +86,7 @@ def main():
             v_derivative = np.multiply(k_d, np.subtract(error, prev_error))
             v_integral = np.multiply(k_i, total_error)
             v_proportional = np.multiply(k_p, error)
-            vd_corr = np.add(v_proportional, np.add(v_integral, v_derivative))
+            vd_corr = np.add(vd, np.add(v_proportional, np.add(v_integral, v_derivative)))
             
             prev_error = error
 
