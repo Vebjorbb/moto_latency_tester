@@ -113,7 +113,7 @@ def compare_plots(filenames: list, joint: int,
         feedback_list.append(feedback[0:cutoff])
     
     i = 0
-    while(len(legend) < len(feedback_list)):
+    while(len(legend) <= len(feedback_list)):
         legend.append('Feedback' + ' ' + str(i))
         i += 1
 
