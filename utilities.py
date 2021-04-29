@@ -179,7 +179,9 @@ def step_latency(filename: str, joint: int):
     #Find the time it takes for the feebck velocity to reach the step magnitude
     feeback_time = 0
     for feedback in feedbacks:
-        if feedback > step_magnitude:
+        if (step_magnitude > 0) and (feedback > step_magnitude):
+            break
+        elif (step_magnitude < 0) and (feedback < step_magnitude):
             break
         else:
             feeback_time += 1
