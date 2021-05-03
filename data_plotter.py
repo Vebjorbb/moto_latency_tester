@@ -3,7 +3,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 import enum
 import os
-from utilities import read_csv_rt
+from utilities import read_csv_rt, count_lines
 
 class Joints(enum.Enum):
     S = 0
@@ -134,3 +134,27 @@ def compare_plots(filenames: list, joint: int,
     plt.grid(True)
     plt.show()
     
+def plot_all_joints(filename: str):
+    fig, ax = plt.subplots(nrows=6, ncols=1)
+    ax_nr = 0
+    
+    for i in range(6):
+        commands, feedback = read_csv_rt(filename, i)
+        total_lines = count_lines(filename)
+
+        for j in range(len(commands)):
+            commands[j] = np.rad2deg(commands[j])
+            feedback[j] = np.rad2deg(feedback[j])
+            
+        cycle_list = np.linspace(0, total_lines, total_lines)
+        ax[ax_nr].plot(cycle_list, commands, label='Command')
+        ax[ax_nr].plot(cycle_list, feedback, label='Feedback' + str(i))
+        ax[ax_nr].legend(loc='upper right')
+        if ax_nr == 0:
+            ax[ax_nr].set_title('Real time control')
+        ax[ax_nr].grid(True)
+
+        ax_nr += 1
+    
+    plt.show()  
+
