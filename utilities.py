@@ -188,3 +188,19 @@ def step_latency(filename: str, joint: int):
 
     step_latency = feeback_time-step_time
     return(step_latency)
+
+def step_analysis_multi(directory: str, joint: int):
+    response_time_list = []
+    latency_list = []
+    for file in os.listdir(directory):
+        if os.path.isfile(os.path.join(directory, file)):
+            print(file)
+            response_time = calculate_response_time(os.path.join(directory, file), joint)
+            latency = step_latency(os.path.join(directory,file),joint)
+            print('Response time: {}\nStep latency: {}\n'.format(response_time, latency))
+            response_time_list.append(response_time)
+            latency_list.append(latency)
+    avg_response_time = sum(response_time_list)/len(response_time_list)
+    avg_latency = sum(latency_list)/len(latency_list)
+    print('Average response time: {}'.format(avg_response_time))
+    print('Average latency: {}'.format(avg_latency))
