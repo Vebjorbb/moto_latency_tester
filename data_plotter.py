@@ -29,7 +29,7 @@ def data_plotter(filename: str, joint: int, total_time: int) -> None:
     plt.show()
 
 #Plots data from motion_log_rt.csv
-def data_plotter_rt(filename: str, joint: int) -> None:
+def data_plotter_rt(filename: str, joint: int, plotsize: int = 0) -> None:
     commands = []
     feedback = []
     total_lines = 0
@@ -49,6 +49,12 @@ def data_plotter_rt(filename: str, joint: int) -> None:
         feedback[i] = np.rad2deg(feedback[i])
         
     cycle_list = np.linspace(0, total_lines, total_lines)
+
+    if plotsize != 0:
+        commands = commands[0:plotsize]
+        feedback = feedback[0:plotsize]
+        cycle_list = cycle_list[0:plotsize]
+
     plt.plot(cycle_list, commands, label='Command')
     plt.plot(cycle_list, feedback, label='Feedback')
     plt.legend(loc='upper right')
