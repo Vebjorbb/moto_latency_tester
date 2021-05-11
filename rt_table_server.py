@@ -33,9 +33,9 @@ def main():
     prev_pos = [0]*10
     curr_pos = [0]*10
     #Tuning parameters for each joint
-    k_p = [0,           0,          0,          0,          0,          0,          0, 0, 0, 0]
+    k_p = [1.72*0.5,    1.69*0.5,   0,          0,          0,          0,          0, 0, 0, 0]
     k_i = [0,           0,          0,          0,          0,          0,          0, 0, 0, 0]
-    k_d = [0,           0,          0,          0,          0,          0,          0, 0, 0, 0]
+    k_d = [4,           3,          0,          0,          0,          0,          0, 0, 0, 0]
 
     while True:
         try:
@@ -64,20 +64,20 @@ def main():
             #Define a joint velocity as a sinus-wave, reset t0 to make velocity start at 0
             if cycle_counter == 0:
                 t0 = time.time()
-            vds  = 0.1 * (np.sin(3.0 * (time.time() - t0)))
+            vds  = 0.3 * (np.sin(3.0 * (time.time() - t0)))
 
             #Step response
             if (cycle_counter > 125) and (cycle_counter < 875):
-                vd = [0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+                vd = [0.0, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
             else:
                 vd = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] 
             
             #Define desired joint velocity for each joint
-            vd = [vds, vds, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] 
+            vd = [vds, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] 
             
 
             #Calculate variables for PID-controller
-            curr_vel = state.joint_state_data[0].vel
+            curr_vel = state.joint_state_data[1].vel
             error = np.subtract(vd, curr_vel)
             total_error = np.add(total_error, error)
 
