@@ -29,7 +29,7 @@ def data_plotter(filename: str, joint: int, total_time: int) -> None:
     plt.show()
 
 #Plots data from motion_log_rt.csv
-def data_plotter_rt(filename: str, joint: int, plotsize: int = 0) -> None:
+def data_plotter_rt(filename: str, joint: int, plotsize: int = 0, title: str = '') -> None:
     commands = []
     feedback = []
     total_lines = 0
@@ -58,7 +58,10 @@ def data_plotter_rt(filename: str, joint: int, plotsize: int = 0) -> None:
     plt.plot(cycle_list, commands, label='Command')
     plt.plot(cycle_list, feedback, label='Feedback')
     plt.legend(loc='upper right')
-    plt.title('Real-Time Control, Joint: {}'.format(Joints(joint).name))
+    if title == '':
+        plt.title('Real-Time Control, Joint: {}'.format(Joints(joint).name))
+    else:
+        plt.title(title)
     plt.ylabel('Joint velocity [deg/s]')
     plt.xlabel('Cycles')
     plt.grid(True)
