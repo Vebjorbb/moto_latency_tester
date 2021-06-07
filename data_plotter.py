@@ -110,7 +110,7 @@ def data_multiplotter_rt(directory: str, joint: int) -> None:
 #Plots feedback from multiple csv files as well as command velocity from the first file
 def compare_plots(filenames: list, joint: int, 
     cutoff: int = 1500,
-    title: str = 'Step Response',
+    title: str = '',
     legend: list = []) -> None:
 
     feedback_list = []
@@ -136,8 +136,12 @@ def compare_plots(filenames: list, joint: int,
         plt.plot(cycle_list, feedback, label=legend[i])
         i += 1
 
+    if title == '':
+        plt.title('Step Response' + ', Joint: {}'.format(Joints(joint).name))
+    else:
+        plt.title(title)
+
     plt.legend(loc='upper right')
-    plt.title(title + ', Joint: {}'.format(Joints(joint).name))
     plt.ylabel('Joint velocity [deg/s]')
     plt.xlabel('Cycles')
     plt.grid(True)
